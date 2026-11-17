@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from matcher import get_best_matches
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 INTERNSHIPS_DB = [
     {"id": 1, "company": "Tech Corp", "role": "Backend Developer", "required_skills": ["python", "flask", "sql"]},
@@ -28,5 +28,5 @@ def index():
             
     return render_template('index.html', matches=matches)
 
-if _name_ == '_main_':
+if __name__ == '__main__':
     app.run(debug=True)
