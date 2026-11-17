@@ -1,44 +1,528 @@
-<!-- templates/index.html -->
+{# Sample data for the sidebar. Replace it here, or pass your own `top_companies` list from Flask. #}
+{% set top_companies = top_companies or [
+    {'name': 'Google',    'skills': ['python', 'algorithms', 'data structures']},
+    {'name': 'Microsoft', 'skills': ['c#', 'azure', 'sql']},
+    {'name': 'Amazon',    'skills': ['java', 'aws', 'system design']},
+    {'name': 'Infosys',   'skills': ['java', 'sql', 'testing']},
+    {'name': 'Zoho',      'skills': ['java', 'javascript', 'problem solving']}
+] %}
+{% set my_skills = request.form.get('skills', '').lower().split(',') | map('trim') | list %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Internship Matcher</title>
+    <title>InternMatch | Student Internship Matcher</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">Student Internship Matcher</h2>
-        
-        <div class="card shadow-sm p-4 mb-5">
-            <form method="POST">
-                <div class="mb-3">
-                    <label class="form-label">Student Name</label>
-                    <input type="text" name="name" class="form-control" required placeholder="John Doe">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Your Skills (Comma separated)</label>
-                    <input type="text" name="skills" class="form-control" required placeholder="python, flask, sql, linux">
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Find Matches</button>
-            </form>
-        </div>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #14213d;
+            --ink-soft: #1d2d52;
+            --muted: #5b6784;
+            --paper: #eef2f8;
+            --surface: #ffffff;
+            --line: #d9e0ec;
+            --accent: #3556d8;
+            --accent-dark: #2744b8;
+            --good: #0f9d7a;
+            --good-soft: #e0f5ee;
+            --teal-deep: #0b6b57;
+        }
 
-        {% if matches %}
-            <h4>Your Top Matches:</h4>
-            <div class="list-group">
-                {% for match in matches %}
-                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-1">{{ match.company }} - {{ match.role }}</h5>
-                            <small class="text-muted">Requires: {{ match.required_skills | join(', ') }}</small>
-                        </div>
-                        <span class="badge bg-success rounded-pill">{{ match.match_score }}% Match</span>
-                    </div>
-                {% endfor %}
+        html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main { flex: 1 0 auto; }
+
+        h1, h2, h3, h4, h5 {
+            font-family: "Bricolage Grotesque", "Public Sans", system-ui, sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        /* ---------- Header ---------- */
+        .site-header {
+            background: var(--ink);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(20, 33, 61, 0.25);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #fff;
+            font-family: "Bricolage Grotesque", sans-serif;
+            font-weight: 800;
+            font-size: 1.25rem;
+            text-decoration: none;
+        }
+
+        .brand:hover { color: #fff; }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: var(--accent);
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+        }
+
+        .site-header .nav-link {
+            color: #c4cde3;
+            font-weight: 500;
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+        }
+
+        .site-header .nav-link:hover,
+        .site-header .nav-link:focus-visible { color: #fff; background: var(--ink-soft); }
+
+        .navbar-toggler { border-color: #4a5a85; }
+        .navbar-toggler-icon { filter: invert(1); }
+
+        /* ---------- Carousel ---------- */
+        .banner { margin-top: 1.5rem; border-radius: 16px; overflow: hidden; }
+
+        .banner .carousel-item {
+            min-height: 230px;
+            padding: 2.5rem 4.5rem 3.25rem;
+            color: #fff;
+        }
+
+        .slide-1 { background: var(--ink); }
+        .slide-2 { background: var(--accent); }
+        .slide-3 { background: var(--teal-deep); }
+
+        .banner h2 {
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 0.6rem;
+        }
+
+        .banner p { max-width: 52ch; margin: 0; opacity: 0.92; font-size: 1.05rem; }
+
+        .banner .carousel-indicators { margin-bottom: 0.9rem; }
+
+        .banner .carousel-control-prev,
+        .banner .carousel-control-next { width: 4rem; }
+
+        /* ---------- Hero + form ---------- */
+        .hero { padding: 2rem 0 1rem; }
+        .hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.1; }
+        .hero p { color: var(--muted); max-width: 54ch; font-size: 1.05rem; }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: 0 12px 32px -18px rgba(20, 33, 61, 0.35);
+        }
+
+        .form-label { font-weight: 600; }
+
+        .form-control {
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            padding: 0.75rem 0.9rem;
+        }
+
+        textarea.form-control { resize: vertical; min-height: 120px; }
+
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(53, 86, 216, 0.15);
+        }
+
+        .form-text { color: var(--muted); }
+        .optional { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+
+        .btn-find {
+            background: var(--accent);
+            border: 0;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.85rem 1rem;
+            transition: background 0.15s ease;
+        }
+
+        .btn-find:hover { background: var(--accent-dark); color: #fff; }
+        .btn-find:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+        /* ---------- Sidebar ---------- */
+        .sidebar { position: sticky; top: 5rem; }
+
+        .side-intro { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+
+        .company {
+            padding: 0.9rem 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .company:first-of-type { border-top: 0; padding-top: 0; }
+        .company:last-of-type { padding-bottom: 0; }
+        .company-name { font-weight: 600; margin: 0 0 0.1rem; }
+
+        .legend { color: var(--muted); font-size: 0.8rem; margin-top: 1rem; }
+
+        /* ---------- Dashboard ---------- */
+        .dash-title { font-weight: 800; font-size: 1.6rem; }
+        .dash-sub { color: var(--muted); }
+
+        .stat {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 1.1rem 1.25rem;
+            height: 100%;
+        }
+
+        .stat-value {
+            font-family: "Bricolage Grotesque", sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .stat-label { color: var(--muted); font-size: 0.9rem; }
+        .stat-good .stat-value { color: var(--good); }
+        .stat-accent .stat-value { color: var(--accent); }
+
+        .section-heading { font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--ink);
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-family: "Bricolage Grotesque", sans-serif;
+            font-weight: 800;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .profile-name { font-size: 1.2rem; font-weight: 800; margin: 0; }
+        .profile-role { color: var(--muted); font-size: 0.9rem; }
+
+        .bio-text {
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+            color: #2b3858;
+            margin: 0;
+        }
+
+        .skill-chip {
+            display: inline-block;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0.15rem 0.7rem;
+            font-size: 0.85rem;
+            margin: 0.2rem 0.3rem 0 0;
+        }
+
+        .skill-chip.have {
+            background: var(--good-soft);
+            border-color: var(--good);
+            color: #075e48;
+            font-weight: 600;
+        }
+
+        .match-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 1.25rem 1.4rem;
+        }
+
+        .match-card + .match-card { margin-top: 0.85rem; }
+        .match-role { font-size: 1.15rem; font-weight: 600; margin: 0; }
+        .match-company { color: var(--muted); font-weight: 500; }
+
+        .score { min-width: 5.5rem; text-align: right; }
+
+        .score-value {
+            font-family: "Bricolage Grotesque", sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--good);
+        }
+
+        .score-label { color: var(--muted); font-size: 0.8rem; }
+
+        .score-bar {
+            height: 6px;
+            background: var(--good-soft);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .score-bar > span {
+            display: block;
+            height: 100%;
+            background: var(--good);
+            border-radius: 999px;
+        }
+
+        /* ---------- Footer ---------- */
+        .site-footer {
+            background: var(--ink);
+            color: #c4cde3;
+            margin-top: 4rem;
+            padding: 2rem 0;
+            font-size: 0.92rem;
+        }
+
+        .site-footer .brand { font-size: 1.1rem; }
+
+        @media (max-width: 575.98px) {
+            .banner .carousel-item { padding: 2rem 3rem 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="site-header">
+        <nav class="navbar navbar-expand-md">
+            <div class="container">
+                <a class="brand" href="#top">
+                    <span class="brand-mark" aria-hidden="true">&#10003;</span>
+                    InternMatch
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="nav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#profile">Your profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#companies">Top companies</a></li>
+                        {% if matches %}
+                        <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
-        {% endif %}
-    </div>
+        </nav>
+    </header>
+
+    <main id="top">
+        <div class="container">
+
+            <!-- Carousel -->
+            <div id="banner" class="carousel slide banner" data-bs-ride="carousel" data-bs-interval="6000" aria-label="Highlights">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#banner" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#banner" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#banner" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item slide-1 active">
+                        <h2>Match your skills to real internships</h2>
+                        <p>List your skills and see internships ranked by how well they fit you.</p>
+                    </div>
+                    <div class="carousel-item slide-2">
+                        <h2>Know what top companies ask for</h2>
+                        <p>Check the sidebar for the skills each company looks for, and see which ones you already have.</p>
+                    </div>
+                    <div class="carousel-item slide-3">
+                        <h2>Tell them who you are</h2>
+                        <p>Add a short bio so your profile shows your studies, projects and goals.</p>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#banner" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#banner" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+
+            <div class="row g-4 mt-1">
+
+                <!-- Main column -->
+                <div class="col-lg-8 col-xl-9">
+
+                    <section class="hero" id="profile">
+                        <h1>Find the internship that fits your skills</h1>
+                        <p class="mb-4">Tell us who you are and what you can do. We rank internships by how well they match your skills.</p>
+
+                        <div class="panel">
+                            <form method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label" for="name">Student name</label>
+                                    <input type="text" id="name" name="name" class="form-control" required placeholder="John Doe">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="skills">Your skills</label>
+                                    <input type="text" id="skills" name="skills" class="form-control" required placeholder="python, flask, sql, linux">
+                                    <div class="form-text">Separate skills with commas.</div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label" for="bio">About you <span class="optional">(optional)</span></label>
+                                    <textarea id="bio" name="bio" class="form-control" rows="4" maxlength="600" placeholder="Tell us about your studies, projects and the kind of internship you want."></textarea>
+                                    <div class="form-text">Up to 600 characters.</div>
+                                </div>
+                                <button type="submit" class="btn btn-find w-100">Find matches</button>
+                            </form>
+                        </div>
+                    </section>
+
+                    {% if matches %}
+                    <!-- Dashboard -->
+                    <section id="dashboard" class="pt-4">
+                        <div class="mb-4">
+                            <h2 class="dash-title mb-1">Your dashboard</h2>
+                            <div class="dash-sub">Results for {{ request.form.get('name') }}</div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6 col-xl-3">
+                                <div class="stat">
+                                    <div class="stat-value">{{ matches | length }}</div>
+                                    <div class="stat-label">Matches found</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-xl-3">
+                                <div class="stat stat-good">
+                                    <div class="stat-value">{{ matches | map(attribute='match_score') | max }}%</div>
+                                    <div class="stat-label">Best match</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-xl-3">
+                                <div class="stat stat-accent">
+                                    <div class="stat-value">{{ ((matches | sum(attribute='match_score')) / (matches | length)) | round | int }}%</div>
+                                    <div class="stat-label">Average match</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-xl-3">
+                                <div class="stat">
+                                    <div class="stat-value">{{ request.form.get('skills', '').split(',') | map('trim') | select | list | length }}</div>
+                                    <div class="stat-label">Skills listed</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-xl-4">
+                                <h3 class="section-heading">Profile</h3>
+                                <div class="panel">
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <div class="avatar" aria-hidden="true">{{ (request.form.get('name') or '?')[0] | upper }}</div>
+                                        <div>
+                                            <p class="profile-name">{{ request.form.get('name') }}</p>
+                                            <div class="profile-role">Internship seeker</div>
+                                        </div>
+                                    </div>
+
+                                    {% if request.form.get('bio') %}
+                                    <p class="bio-text mb-3">{{ request.form.get('bio') }}</p>
+                                    {% endif %}
+
+                                    <div>
+                                        {% for skill in request.form.get('skills', '').split(',') | map('trim') | select %}
+                                            <span class="skill-chip">{{ skill }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-8">
+                                <h3 class="section-heading">Your top matches</h3>
+                                {% for match in matches %}
+                                    <article class="match-card">
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
+                                            <div>
+                                                <h4 class="match-role">{{ match.role }}</h4>
+                                                <div class="match-company">{{ match.company }}</div>
+                                                <div class="mt-2" aria-label="Required skills: {{ match.required_skills | join(', ') }}">
+                                                    {% for skill in match.required_skills %}
+                                                        <span class="skill-chip">{{ skill }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div class="score">
+                                                <div class="score-value">{{ match.match_score }}%</div>
+                                                <div class="score-label">match</div>
+                                            </div>
+                                        </div>
+                                        <div class="score-bar" aria-hidden="true">
+                                            <span style="width: {{ match.match_score }}%"></span>
+                                        </div>
+                                    </article>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </section>
+                    {% endif %}
+
+                </div>
+
+                <!-- Sidebar -->
+                <aside class="col-lg-4 col-xl-3" id="companies" aria-label="Top companies and required skills">
+                    <div class="sidebar">
+                        <div class="panel">
+                            <h2 class="section-heading mb-1">Top companies</h2>
+                            <p class="side-intro">Skills each company asks for.</p>
+
+                            {% for company in top_companies %}
+                                <div class="company">
+                                    <h3 class="company-name h6">{{ company.name }}</h3>
+                                    <div>
+                                        {% for skill in company.skills %}
+                                            <span class="skill-chip{% if skill | lower in my_skills %} have{% endif %}">{{ skill }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            {% if my_skills | select | list %}
+                            <div class="legend">Green skills are ones you listed.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+            <a class="brand" href="#top">
+                <span class="brand-mark" aria-hidden="true">&#10003;</span>
+                InternMatch
+            </a>
+            <div>&copy; 2026 InternMatch. Match your skills to real opportunities.</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
