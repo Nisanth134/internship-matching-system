@@ -1,12 +1,11 @@
-{# Sample data for the sidebar. Replace it here, or pass your own `top_companies` list from Flask. #}
 {% set top_companies = top_companies or [
-    {'name': 'Google',    'skills': ['python', 'algorithms', 'data structures']},
-    {'name': 'Microsoft', 'skills': ['c#', 'azure', 'sql']},
-    {'name': 'Amazon',    'skills': ['java', 'aws', 'system design']},
-    {'name': 'Infosys',   'skills': ['java', 'sql', 'testing']},
-    {'name': 'Zoho',      'skills': ['java', 'javascript', 'problem solving']}
+    {'name': "Tech Corp", "skills": ["python", "flask", "sql"]},
+    {'name': "DataWorks", "skills": ["python", "pandas", "excel"]},
+    {'name': "Web Solutions", "skills": ["html", "css", "javascript", "bootstrap"]},
+    {'name': "Cloud Sync", "skills": ["python", "linux", "aws", "docker"]},
+    {'name': "NexaAI Labs", "skills": ["python", "pytorch", "machine learning", "nlp"]},
+    {'name': "SecureNet Systems", "skills": ["linux", "networking", "python", "cybersecurity"]}
 ] %}
-{% set my_skills = request.form.get('skills', '').lower().split(',') | map('trim') | list %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,7 +50,6 @@
             letter-spacing: -0.02em;
         }
 
-        /* ---------- Header ---------- */
         .site-header {
             background: var(--ink);
             position: sticky;
@@ -96,12 +94,11 @@
         .navbar-toggler { border-color: #4a5a85; }
         .navbar-toggler-icon { filter: invert(1); }
 
-        /* ---------- Carousel ---------- */
         .banner { margin-top: 1.5rem; border-radius: 16px; overflow: hidden; }
 
         .banner .carousel-item {
-            min-height: 230px;
-            padding: 2.5rem 4.5rem 3.25rem;
+            min-height: 210px;
+            padding: 2.25rem 4.5rem 3rem;
             color: #fff;
         }
 
@@ -110,23 +107,20 @@
         .slide-3 { background: var(--teal-deep); }
 
         .banner h2 {
-            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-size: clamp(1.5rem, 4vw, 2.1rem);
             font-weight: 800;
             line-height: 1.15;
             margin-bottom: 0.6rem;
         }
 
-        .banner p { max-width: 52ch; margin: 0; opacity: 0.92; font-size: 1.05rem; }
-
-        .banner .carousel-indicators { margin-bottom: 0.9rem; }
-
+        .banner p { max-width: 54ch; margin: 0; opacity: 0.92; font-size: 1.02rem; }
+        .banner .carousel-indicators { margin-bottom: 0.8rem; }
         .banner .carousel-control-prev,
         .banner .carousel-control-next { width: 4rem; }
 
-        /* ---------- Hero + form ---------- */
-        .hero { padding: 2rem 0 1rem; }
-        .hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.1; }
-        .hero p { color: var(--muted); max-width: 54ch; font-size: 1.05rem; }
+        .hero { padding: 1.75rem 0 1rem; }
+        .hero h1 { font-size: clamp(1.75rem, 4vw, 2.45rem); font-weight: 800; line-height: 1.1; }
+        .hero p { color: var(--muted); max-width: 56ch; font-size: 1.02rem; }
 
         .panel {
             background: var(--surface);
@@ -136,23 +130,34 @@
             box-shadow: 0 12px 32px -18px rgba(20, 33, 61, 0.35);
         }
 
-        .form-label { font-weight: 600; }
-
-        .form-control {
-            border: 1.5px solid var(--line);
-            border-radius: 10px;
-            padding: 0.75rem 0.9rem;
+        .form-section-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--accent);
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 0.45rem;
+            margin-bottom: 1rem;
         }
 
-        textarea.form-control { resize: vertical; min-height: 120px; }
+        .form-label { font-weight: 600; font-size: 0.93rem; }
 
-        .form-control:focus {
+        .form-control, .form-select {
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            padding: 0.7rem 0.9rem;
+        }
+
+        textarea.form-control { resize: vertical; min-height: 100px; }
+
+        .form-control:focus, .form-select:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 4px rgba(53, 86, 216, 0.15);
         }
 
-        .form-text { color: var(--muted); }
-        .optional { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+        .form-text { color: var(--muted); font-size: 0.84rem; }
+        .optional { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
 
         .btn-find {
             background: var(--accent);
@@ -160,134 +165,38 @@
             border-radius: 10px;
             color: #fff;
             font-weight: 600;
-            padding: 0.85rem 1rem;
+            padding: 0.9rem 1rem;
+            font-size: 1.02rem;
             transition: background 0.15s ease;
         }
 
         .btn-find:hover { background: var(--accent-dark); color: #fff; }
         .btn-find:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
-        /* ---------- Sidebar ---------- */
         .sidebar { position: sticky; top: 5rem; }
-
         .side-intro { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
 
         .company {
-            padding: 0.9rem 0;
+            padding: 0.85rem 0;
             border-top: 1px solid var(--line);
         }
 
         .company:first-of-type { border-top: 0; padding-top: 0; }
         .company:last-of-type { padding-bottom: 0; }
-        .company-name { font-weight: 600; margin: 0 0 0.1rem; }
-
-        .legend { color: var(--muted); font-size: 0.8rem; margin-top: 1rem; }
-
-        /* ---------- Dashboard ---------- */
-        .dash-title { font-weight: 800; font-size: 1.6rem; }
-        .dash-sub { color: var(--muted); }
-
-        .stat {
-            background: var(--surface);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 1.1rem 1.25rem;
-            height: 100%;
-        }
-
-        .stat-value {
-            font-family: "Bricolage Grotesque", sans-serif;
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1.1;
-        }
-
-        .stat-label { color: var(--muted); font-size: 0.9rem; }
-        .stat-good .stat-value { color: var(--good); }
-        .stat-accent .stat-value { color: var(--accent); }
+        .company-name { font-weight: 600; margin: 0 0 0.25rem; }
 
         .section-heading { font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; }
-
-        .avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: var(--ink);
-            color: #fff;
-            display: grid;
-            place-items: center;
-            font-family: "Bricolage Grotesque", sans-serif;
-            font-weight: 800;
-            font-size: 1.4rem;
-            flex-shrink: 0;
-        }
-
-        .profile-name { font-size: 1.2rem; font-weight: 800; margin: 0; }
-        .profile-role { color: var(--muted); font-size: 0.9rem; }
-
-        .bio-text {
-            white-space: pre-line;
-            overflow-wrap: anywhere;
-            color: #2b3858;
-            margin: 0;
-        }
 
         .skill-chip {
             display: inline-block;
             background: var(--paper);
             border: 1px solid var(--line);
             border-radius: 999px;
-            padding: 0.15rem 0.7rem;
-            font-size: 0.85rem;
-            margin: 0.2rem 0.3rem 0 0;
+            padding: 0.15rem 0.65rem;
+            font-size: 0.82rem;
+            margin: 0.2rem 0.25rem 0 0;
         }
 
-        .skill-chip.have {
-            background: var(--good-soft);
-            border-color: var(--good);
-            color: #075e48;
-            font-weight: 600;
-        }
-
-        .match-card {
-            background: var(--surface);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 1.25rem 1.4rem;
-        }
-
-        .match-card + .match-card { margin-top: 0.85rem; }
-        .match-role { font-size: 1.15rem; font-weight: 600; margin: 0; }
-        .match-company { color: var(--muted); font-weight: 500; }
-
-        .score { min-width: 5.5rem; text-align: right; }
-
-        .score-value {
-            font-family: "Bricolage Grotesque", sans-serif;
-            font-size: 1.75rem;
-            font-weight: 800;
-            line-height: 1;
-            color: var(--good);
-        }
-
-        .score-label { color: var(--muted); font-size: 0.8rem; }
-
-        .score-bar {
-            height: 6px;
-            background: var(--good-soft);
-            border-radius: 999px;
-            overflow: hidden;
-            margin-top: 1rem;
-        }
-
-        .score-bar > span {
-            display: block;
-            height: 100%;
-            background: var(--good);
-            border-radius: 999px;
-        }
-
-        /* ---------- Footer ---------- */
         .site-footer {
             background: var(--ink);
             color: #c4cde3;
@@ -299,17 +208,16 @@
         .site-footer .brand { font-size: 1.1rem; }
 
         @media (max-width: 575.98px) {
-            .banner .carousel-item { padding: 2rem 3rem 3rem; }
+            .banner .carousel-item { padding: 1.75rem 2.75rem 2.75rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <header class="site-header">
         <nav class="navbar navbar-expand-md">
             <div class="container">
-                <a class="brand" href="#top">
+                <a class="brand" href="{{ url_for('index') }}">
                     <span class="brand-mark" aria-hidden="true">&#10003;</span>
                     InternMatch
                 </a>
@@ -318,11 +226,8 @@
                 </button>
                 <div class="collapse navbar-collapse" id="nav">
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link" href="#profile">Your profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#companies">Top companies</a></li>
-                        {% if matches %}
-                        <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
-                        {% endif %}
+                        <li class="nav-item"><a class="nav-link" href="#profile">Student application</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#companies">Hiring companies</a></li>
                     </ul>
                 </div>
             </div>
@@ -332,7 +237,7 @@
     <main id="top">
         <div class="container">
 
-            <!-- Carousel -->
+            <!-- Highlights Carousel -->
             <div id="banner" class="carousel slide banner" data-bs-ride="carousel" data-bs-interval="6000" aria-label="Highlights">
                 <div class="carousel-indicators">
                     <button type="button" data-bs-target="#banner" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -342,15 +247,15 @@
                 <div class="carousel-inner">
                     <div class="carousel-item slide-1 active">
                         <h2>Match your skills to real internships</h2>
-                        <p>List your skills and see internships ranked by how well they fit you.</p>
+                        <p>Complete your student profile and open an instant ranked dashboard of matching roles.</p>
                     </div>
                     <div class="carousel-item slide-2">
-                        <h2>Know what top companies ask for</h2>
-                        <p>Check the sidebar for the skills each company looks for, and see which ones you already have.</p>
+                        <h2>Filter by work mode and availability</h2>
+                        <p>Let recruiters know whether you prefer Remote, Hybrid, or On-site internships.</p>
                     </div>
                     <div class="carousel-item slide-3">
-                        <h2>Tell them who you are</h2>
-                        <p>Add a short bio so your profile shows your studies, projects and goals.</p>
+                        <h2>See exact skill gaps at a glance</h2>
+                        <p>Compare your current stack against company requirements and identify what to learn next.</p>
                     </div>
                 </div>
                 <button class="carousel-control-prev" type="button" data-bs-target="#banner" data-bs-slide="prev">
@@ -365,145 +270,113 @@
 
             <div class="row g-4 mt-1">
 
-                <!-- Main column -->
+                <!-- Application Form -->
                 <div class="col-lg-8 col-xl-9">
-
                     <section class="hero" id="profile">
                         <h1>Find the internship that fits your skills</h1>
-                        <p class="mb-4">Tell us who you are and what you can do. We rank internships by how well they match your skills.</p>
+                        <p class="mb-4">Fill in your profile and skills below. Press Enter or click Find matches to open your results dashboard.</p>
 
                         <div class="panel">
-                            <form method="POST">
-                                <div class="mb-3">
-                                    <label class="form-label" for="name">Student name</label>
-                                    <input type="text" id="name" name="name" class="form-control" required placeholder="John Doe">
+                            <form action="{{ url_for('results') }}" method="POST">
+
+                                <!-- 1. Personal & Contact Details -->
+                                <div class="form-section-title">1. Personal &amp; Contact Details</div>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="name">Full name</label>
+                                        <input type="text" id="name" name="name" class="form-control" required placeholder="John Doe">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="email">Email address</label>
+                                        <input type="email" id="email" name="email" class="form-control" required placeholder="john.doe@university.edu">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="phone">Phone number</label>
+                                        <input type="tel" id="phone" name="phone" class="form-control" required placeholder="+91 98765 43210">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="address">Current address / City</label>
+                                        <input type="text" id="address" name="address" class="form-control" required placeholder="Chennai, Tamil Nadu">
+                                    </div>
                                 </div>
+
+                                <!-- 2. Academic & Internship Preferences -->
+                                <div class="form-section-title">2. Academic Background &amp; Preferences</div>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="degree">Degree &amp; Branch</label>
+                                        <input type="text" id="degree" name="degree" class="form-control" required placeholder="B.Tech Information Technology">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="year">Current Year of Study</label>
+                                        <select id="year" name="year" class="form-select">
+                                            <option value="1st Year">1st Year Undergraduate</option>
+                                            <option value="2nd Year">2nd Year Undergraduate</option>
+                                            <option value="3rd Year" selected>3rd Year Undergraduate</option>
+                                            <option value="Final Year">Final Year Undergraduate</option>
+                                            <option value="Postgraduate / Graduate">Postgraduate / Recent Graduate</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="work_mode">Preferred Work Mode</label>
+                                        <select id="work_mode" name="work_mode" class="form-select">
+                                            <option value="Any" selected>Any (Flexible)</option>
+                                            <option value="Remote">Remote</option>
+                                            <option value="Hybrid">Hybrid</option>
+                                            <option value="On-site">On-site</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="duration">Availability Duration</label>
+                                        <select id="duration" name="duration" class="form-select">
+                                            <option value="1-2 Months">1–2 Months (Summer/Winter)</option>
+                                            <option value="3 Months" selected>3 Months</option>
+                                            <option value="6 Months">6 Months</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="portfolio">GitHub / LinkedIn <span class="optional">(optional)</span></label>
+                                        <input type="url" id="portfolio" name="portfolio" class="form-control" placeholder="https://github.com/username">
+                                    </div>
+                                </div>
+
+                                <!-- 3. Skills & Summary -->
+                                <div class="form-section-title">3. Technical Skills &amp; Summary</div>
                                 <div class="mb-3">
                                     <label class="form-label" for="skills">Your skills</label>
-                                    <input type="text" id="skills" name="skills" class="form-control" required placeholder="python, flask, sql, linux">
-                                    <div class="form-text">Separate skills with commas.</div>
+                                    <input type="text" id="skills" name="skills" class="form-control" required placeholder="python, flask, sql, linux, git">
+                                    <div class="form-text">Separate multiple skills with commas (pressing Enter submits the form).</div>
                                 </div>
+
                                 <div class="mb-4">
-                                    <label class="form-label" for="bio">About you <span class="optional">(optional)</span></label>
-                                    <textarea id="bio" name="bio" class="form-control" rows="4" maxlength="600" placeholder="Tell us about your studies, projects and the kind of internship you want."></textarea>
+                                    <label class="form-label" for="bio">About you &amp; career goals <span class="optional">(optional)</span></label>
+                                    <textarea id="bio" name="bio" class="form-control" rows="3" maxlength="600" placeholder="Briefly describe your projects, hackathons, or the roles you are targeting."></textarea>
                                     <div class="form-text">Up to 600 characters.</div>
                                 </div>
-                                <button type="submit" class="btn btn-find w-100">Find matches</button>
+
+                                <button type="submit" class="btn btn-find w-100">Find matches &rarr;</button>
                             </form>
                         </div>
                     </section>
-
-                    {% if matches %}
-                    <!-- Dashboard -->
-                    <section id="dashboard" class="pt-4">
-                        <div class="mb-4">
-                            <h2 class="dash-title mb-1">Your dashboard</h2>
-                            <div class="dash-sub">Results for {{ request.form.get('name') }}</div>
-                        </div>
-
-                        <div class="row g-3 mb-4">
-                            <div class="col-6 col-xl-3">
-                                <div class="stat">
-                                    <div class="stat-value">{{ matches | length }}</div>
-                                    <div class="stat-label">Matches found</div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-xl-3">
-                                <div class="stat stat-good">
-                                    <div class="stat-value">{{ matches | map(attribute='match_score') | max }}%</div>
-                                    <div class="stat-label">Best match</div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-xl-3">
-                                <div class="stat stat-accent">
-                                    <div class="stat-value">{{ ((matches | sum(attribute='match_score')) / (matches | length)) | round | int }}%</div>
-                                    <div class="stat-label">Average match</div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-xl-3">
-                                <div class="stat">
-                                    <div class="stat-value">{{ request.form.get('skills', '').split(',') | map('trim') | select | list | length }}</div>
-                                    <div class="stat-label">Skills listed</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row g-4">
-                            <div class="col-xl-4">
-                                <h3 class="section-heading">Profile</h3>
-                                <div class="panel">
-                                    <div class="d-flex align-items-center gap-3 mb-3">
-                                        <div class="avatar" aria-hidden="true">{{ (request.form.get('name') or '?')[0] | upper }}</div>
-                                        <div>
-                                            <p class="profile-name">{{ request.form.get('name') }}</p>
-                                            <div class="profile-role">Internship seeker</div>
-                                        </div>
-                                    </div>
-
-                                    {% if request.form.get('bio') %}
-                                    <p class="bio-text mb-3">{{ request.form.get('bio') }}</p>
-                                    {% endif %}
-
-                                    <div>
-                                        {% for skill in request.form.get('skills', '').split(',') | map('trim') | select %}
-                                            <span class="skill-chip">{{ skill }}</span>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-8">
-                                <h3 class="section-heading">Your top matches</h3>
-                                {% for match in matches %}
-                                    <article class="match-card">
-                                        <div class="d-flex justify-content-between align-items-start gap-3">
-                                            <div>
-                                                <h4 class="match-role">{{ match.role }}</h4>
-                                                <div class="match-company">{{ match.company }}</div>
-                                                <div class="mt-2" aria-label="Required skills: {{ match.required_skills | join(', ') }}">
-                                                    {% for skill in match.required_skills %}
-                                                        <span class="skill-chip">{{ skill }}</span>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                            <div class="score">
-                                                <div class="score-value">{{ match.match_score }}%</div>
-                                                <div class="score-label">match</div>
-                                            </div>
-                                        </div>
-                                        <div class="score-bar" aria-hidden="true">
-                                            <span style="width: {{ match.match_score }}%"></span>
-                                        </div>
-                                    </article>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </section>
-                    {% endif %}
-
                 </div>
 
                 <!-- Sidebar -->
                 <aside class="col-lg-4 col-xl-3" id="companies" aria-label="Top companies and required skills">
-                    <div class="sidebar">
+                    <div class="sidebar pt-lg-4">
                         <div class="panel">
-                            <h2 class="section-heading mb-1">Top companies</h2>
-                            <p class="side-intro">Skills each company asks for.</p>
+                            <h2 class="section-heading mb-1">Hiring companies</h2>
+                            <p class="side-intro">Sample stacks companies look for.</p>
 
                             {% for company in top_companies %}
                                 <div class="company">
                                     <h3 class="company-name h6">{{ company.name }}</h3>
                                     <div>
                                         {% for skill in company.skills %}
-                                            <span class="skill-chip{% if skill | lower in my_skills %} have{% endif %}">{{ skill }}</span>
+                                            <span class="skill-chip">{{ skill }}</span>
                                         {% endfor %}
                                     </div>
                                 </div>
                             {% endfor %}
-
-                            {% if my_skills | select | list %}
-                            <div class="legend">Green skills are ones you listed.</div>
-                            {% endif %}
                         </div>
                     </div>
                 </aside>
@@ -512,10 +385,9 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="site-footer">
         <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-            <a class="brand" href="#top">
+            <a class="brand" href="{{ url_for('index') }}">
                 <span class="brand-mark" aria-hidden="true">&#10003;</span>
                 InternMatch
             </a>
