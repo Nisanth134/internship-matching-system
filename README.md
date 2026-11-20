@@ -4,7 +4,7 @@ Project
 A Python-based web application that matches students to open internships based on their skill sets. Built with Flask, tested with pytest, and deployed via Render.
 
 ## Live Demo
-[Insert Render URL here once deployed]
+https://internship-matching-system.onrender.com
 
 ## Setup Instructions (Local Development)
 1. Clone the repository: git clone <repo_url>
