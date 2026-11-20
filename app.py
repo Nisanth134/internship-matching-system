@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from matcher import match_internships  
+from matcher import get_best_matches
 
 app = Flask(__name__)
 
@@ -143,23 +143,15 @@ def results():
         "duration": request.form.get("duration", "").strip(),
         "portfolio": request.form.get("portfolio", "").strip(),
         "bio": request.form.get("bio", "").strip(),
+        "skills": skills_list,
         "skills_list": skills_list,
     }
 
+    matches = get_best_matches(student, INTERNSHIPS)
 
-    raw_matches = match_internships(skills_list, INTERNSHIPS)
-
-    lookup = {(item["company"], item["role"]): item for item in INTERNSHIPS}
-    enriched_matches = []
-    for m in raw_matches:
-        details = lookup.get((m["company"], m["role"]), {})
-        enriched = {**details, **m}
-        enriched_matches.append(enriched)
-
-   
     preferred_mode = student["work_mode"].lower()
     if preferred_mode != "any":
-        enriched_matches.sort(
+        matches.sort(
             key=lambda x: (
                 x["match_score"],
                 1 if x.get("work_mode", "").lower() == preferred_mode else 0
@@ -167,7 +159,7 @@ def results():
             reverse=True
         )
 
-    return render_template("results.html", student=student, matches=enriched_matches)
+    return render_template("results.html", student=student, matches=matches)
 
 
 if __name__ == "__main__":
