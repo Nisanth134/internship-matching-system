@@ -22,8 +22,3 @@ pytest
 ## Limitations
 * Uses a mock, hard-coded database instead of a live database (e.g., PostgreSQL).
 * Matching algorithm is basic and relies on exact string overlaps (case-insensitive).
-
-## Team Contributions
-* *Person 1:* Setup repository, GitHub Actions, implemented core backend algorithm (matcher.py), handled input validation and edge cases.
-* *Person 2:* Wrote pytest suite (test_matcher.py), built the Flask web server (app.py), and designed the Bootstrap frontend (index.html).
-* *Person 3:* Configured production server settings (gunicorn), wrote final documentation, and managed cloud deployment via Render.
