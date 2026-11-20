@@ -1,0 +1,468 @@
+{% set my_skills = student.skills_list | map('lower') | list %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Dashboard | InternMatch</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #14213d;
+            --ink-soft: #1d2d52;
+            --muted: #5b6784;
+            --paper: #eef2f8;
+            --surface: #ffffff;
+            --line: #d9e0ec;
+            --accent: #3556d8;
+            --accent-dark: #2744b8;
+            --good: #0f9d7a;
+            --good-soft: #e0f5ee;
+            --warn-soft: #fff5e6;
+            --warn-border: #f0c36d;
+        }
+
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main { flex: 1 0 auto; }
+
+        h1, h2, h3, h4, h5 {
+            font-family: "Bricolage Grotesque", "Public Sans", system-ui, sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .site-header {
+            background: var(--ink);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(20, 33, 61, 0.25);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #fff;
+            font-family: "Bricolage Grotesque", sans-serif;
+            font-weight: 800;
+            font-size: 1.25rem;
+            text-decoration: none;
+        }
+
+        .brand:hover { color: #fff; }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: var(--accent);
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+        }
+
+        .btn-back {
+            background: var(--ink-soft);
+            color: #fff;
+            border: 1px solid #3c4f7a;
+            border-radius: 9px;
+            font-weight: 500;
+            padding: 0.45rem 0.95rem;
+            text-decoration: none;
+            font-size: 0.92rem;
+        }
+
+        .btn-back:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 12px 32px -18px rgba(20, 33, 61, 0.35);
+        }
+
+        .dash-title { font-weight: 800; font-size: 1.85rem; }
+        .dash-sub { color: var(--muted); }
+
+        .stat {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 1.1rem 1.25rem;
+            height: 100%;
+        }
+
+        .stat-value {
+            font-family: "Bricolage Grotesque", sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .stat-label { color: var(--muted); font-size: 0.9rem; }
+        .stat-good .stat-value { color: var(--good); }
+        .stat-accent .stat-value { color: var(--accent); }
+
+        .section-heading { font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--ink);
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-family: "Bricolage Grotesque", sans-serif;
+            font-weight: 800;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .profile-name { font-size: 1.2rem; font-weight: 800; margin: 0; }
+        .profile-role { color: var(--muted); font-size: 0.9rem; }
+
+        .detail-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .detail-list li {
+            padding: 0.55rem 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .detail-list li:last-child { border-bottom: 0; }
+        .detail-key { color: var(--muted); font-weight: 500; flex-shrink: 0; }
+        .detail-val { font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+
+        .bio-text {
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+            color: #2b3858;
+            font-size: 0.92rem;
+            background: var(--paper);
+            padding: 0.75rem 0.9rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .skill-chip {
+            display: inline-block;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0.15rem 0.7rem;
+            font-size: 0.83rem;
+            margin: 0.2rem 0.25rem 0 0;
+        }
+
+        .skill-chip.have {
+            background: var(--good-soft);
+            border-color: var(--good);
+            color: #075e48;
+            font-weight: 600;
+        }
+
+        .skill-chip.missing {
+            background: var(--warn-soft);
+            border-color: var(--warn-border);
+            color: #7a5200;
+        }
+
+        .match-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 1.3rem 1.45rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .match-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -16px rgba(20, 33, 61, 0.35);
+        }
+
+        .match-card + .match-card { margin-top: 0.9rem; }
+        .match-role { font-size: 1.18rem; font-weight: 700; margin: 0; }
+        .match-company { color: var(--accent); font-weight: 600; font-size: 0.98rem; }
+
+        .meta-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-top: 0.5rem;
+        }
+
+        .meta-pill {
+            font-size: 0.8rem;
+            color: var(--muted);
+            background: var(--paper);
+            border-radius: 6px;
+            padding: 0.15rem 0.55rem;
+            font-weight: 500;
+        }
+
+        .meta-pill.mode-match {
+            background: #e8edff;
+            color: var(--accent-dark);
+            font-weight: 600;
+        }
+
+        .score { min-width: 5.5rem; text-align: right; }
+
+        .score-value {
+            font-family: "Bricolage Grotesque", sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--good);
+        }
+
+        .score-label { color: var(--muted); font-size: 0.8rem; }
+
+        .score-bar {
+            height: 6px;
+            background: var(--good-soft);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .score-bar > span {
+            display: block;
+            height: 100%;
+            background: var(--good);
+            border-radius: 999px;
+        }
+
+        .legend-bar {
+            font-size: 0.84rem;
+            color: var(--muted);
+            margin-bottom: 0.85rem;
+        }
+
+        .site-footer {
+            background: var(--ink);
+            color: #c4cde3;
+            margin-top: 4rem;
+            padding: 2rem 0;
+            font-size: 0.92rem;
+        }
+
+        .site-footer .brand { font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header">
+        <nav class="navbar">
+            <div class="container">
+                <a class="brand" href="{{ url_for('index') }}">
+                    <span class="brand-mark" aria-hidden="true">&#10003;</span>
+                    InternMatch
+                </a>
+                <a href="{{ url_for('index') }}" class="btn-back">&larr; Edit Profile / New Search</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="py-4">
+        <div class="container">
+
+            <!-- Top Header -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                <div>
+                    <h1 class="dash-title mb-1">Internship Match Results</h1>
+                    <div class="dash-sub">Tailored recommendations for <strong>{{ student.name }}</strong></div>
+                </div>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-primary fw-semibold align-self-start align-self-md-center">
+                    &larr; Update Skills or Details
+                </a>
+            </div>
+
+            <!-- Summary Metrics -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-xl-3">
+                    <div class="stat">
+                        <div class="stat-value">{{ matches | length }}</div>
+                        <div class="stat-label">Matching roles</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="stat stat-good">
+                        <div class="stat-value">{{ (matches | map(attribute='match_score') | max) if matches else 0 }}%</div>
+                        <div class="stat-label">Best match score</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="stat stat-accent">
+                        <div class="stat-value">{{ (((matches | sum(attribute='match_score')) / (matches | length)) | round | int) if matches else 0 }}%</div>
+                        <div class="stat-label">Average compatibility</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="stat">
+                        <div class="stat-value">{{ student.skills_list | length }}</div>
+                        <div class="stat-label">Skills evaluated</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Left Column: Full Student Candidate Card -->
+                <div class="col-lg-4">
+                    <h2 class="section-heading">Candidate Profile</h2>
+                    <div class="panel">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar" aria-hidden="true">{{ (student.name or '?')[0] | upper }}</div>
+                            <div>
+                                <p class="profile-name">{{ student.name }}</p>
+                                <div class="profile-role">{{ student.degree }} &bull; {{ student.year }}</div>
+                            </div>
+                        </div>
+
+                        <ul class="detail-list">
+                            <li>
+                                <span class="detail-key">Email</span>
+                                <span class="detail-val">{{ student.email }}</span>
+                            </li>
+                            <li>
+                                <span class="detail-key">Phone</span>
+                                <span class="detail-val">{{ student.phone }}</span>
+                            </li>
+                            <li>
+                                <span class="detail-key">Location</span>
+                                <span class="detail-val">{{ student.address }}</span>
+                            </li>
+                            <li>
+                                <span class="detail-key">Work Mode</span>
+                                <span class="detail-val">{{ student.work_mode }}</span>
+                            </li>
+                            <li>
+                                <span class="detail-key">Duration</span>
+                                <span class="detail-val">{{ student.duration }}</span>
+                            </li>
+                            {% if student.portfolio %}
+                            <li>
+                                <span class="detail-key">Portfolio</span>
+                                <span class="detail-val"><a href="{{ student.portfolio }}" target="_blank" rel="noopener">View Profile &nearr;</a></span>
+                            </li>
+                            {% endif %}
+                        </ul>
+
+                        {% if student.bio %}
+                            <div class="bio-text">{{ student.bio }}</div>
+                        {% endif %}
+
+                        <div class="fw-semibold small text-muted mb-1">Your Listed Skills:</div>
+                        <div>
+                            {% for skill in student.skills_list %}
+                                <span class="skill-chip have">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Ranked Matches -->
+                <div class="col-lg-8">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                        <h2 class="section-heading mb-0">Recommended Internships</h2>
+                        <div class="legend-bar mb-0">
+                            <span class="skill-chip have">Green = Matched</span>
+                            <span class="skill-chip missing">Amber = Skill to learn</span>
+                        </div>
+                    </div>
+
+                    {% if matches %}
+                        {% for match in matches %}
+                            <article class="match-card">
+                                <div class="d-flex justify-content-between align-items-start gap-3">
+                                    <div>
+                                        <h3 class="match-role">{{ match.role }}</h3>
+                                        <div class="match-company">{{ match.company }}</div>
+
+                                        <div class="meta-badges">
+                                            {% if match.location %}
+                                                <span class="meta-pill">&#128205; {{ match.location }}</span>
+                                            {% endif %}
+                                            {% if match.work_mode %}
+                                                <span class="meta-pill{% if student.work_mode == 'Any' or student.work_mode | lower == match.work_mode | lower %} mode-match{% endif %}">
+                                                    {{ match.work_mode }}
+                                                </span>
+                                            {% endif %}
+                                            {% if match.duration %}
+                                                <span class="meta-pill">{{ match.duration }}</span>
+                                            {% endif %}
+                                            {% if match.stipend %}
+                                                <span class="meta-pill">{{ match.stipend }}</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mt-2">
+                                            {% for skill in match.required_skills %}
+                                                {% if skill | lower in my_skills %}
+                                                    <span class="skill-chip have" title="You have this skill">&#10003; {{ skill }}</span>
+                                                {% else %}
+                                                    <span class="skill-chip missing" title="Recommended skill to learn">{{ skill }}</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="score">
+                                        <div class="score-value">{{ match.match_score }}%</div>
+                                        <div class="score-label">match</div>
+                                    </div>
+                                </div>
+                                <div class="score-bar" aria-hidden="true">
+                                    <span style="width: {{ match.match_score }}%"></span>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    {% else %}
+                        <div class="panel text-center py-5">
+                            <h3>No direct skill matches found</h3>
+                            <p class="text-muted mb-3">Try adding broader skills (such as Python, SQL, HTML, CSS, Linux, or Excel) to see matching roles.</p>
+                            <a href="{{ url_for('index') }}" class="btn btn-primary">Update Your Skills</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+            <a class="brand" href="{{ url_for('index') }}">
+                <span class="brand-mark" aria-hidden="true">&#10003;</span>
+                InternMatch
+            </a>
+            <div>&copy; 2026 InternMatch. Match your skills to real opportunities.</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
